@@ -10,6 +10,9 @@
 # Precompiled Headers
 *.gch
 *.pch
+*.ipch
+*.idb
+*.pdb
 
 # Compiled Dynamic libraries
 *.so
@@ -30,3 +33,8 @@
 *.exe
 *.out
 *.app
+
+*.tlog
+*.log
+Debug
+.vs
