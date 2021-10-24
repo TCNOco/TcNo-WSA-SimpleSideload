@@ -108,8 +108,8 @@ int main(int argc, char** argv)
 
         // Else:
         string args;
-		for (size_t i = 0; i < argc; ++i)
-            args += argv[i];
+		for (size_t i = 1; i < argc; ++i)
+            args += '"' + argv[i] + '"';
 
         auto run = appdata / "TcNo-WSA-SimpleSideload.exe";
         ShellExecuteA(NULL,
@@ -211,7 +211,7 @@ bool associate_with_apk()
     HKEY hkey;
     string desc = "WSA Application";
     auto run = appdata / "platform-tools\\TcNo-WSA-SimpleSideload.exe";
-    string app = run.string() + " %1";
+    string app = run.string() + " \"%1\"";
     string extension = ".apk";
 
     string path = "SOFTWARE\\Classes\\" + extension + "\\shell\\open\\command\\";
@@ -240,7 +240,7 @@ bool add_context_option()
     HKEY hkey;
     string desc = "WSA Application";
     auto run = appdata / "platform-tools\\TcNo-WSA-SimpleSideload.exe";
-    string app = run.string() + " %1";
+    string app = run.string() + " \"%1\"";
     string extension = ".apk";
 
     string path = extension + "\\shell\\Install in WSA-SimpleSideload\\command\\";
