@@ -37,4 +37,5 @@
 *.tlog
 *.log
 Debug
+Release
 .vs
