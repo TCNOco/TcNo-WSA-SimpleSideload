@@ -146,174 +146,24 @@ inline bool download_file(const char* url, const char* dest) {
 }
 
 
-int SystemCapture(
-    string         CmdLine,    //Command Line
-    LPCSTR         CmdRunDir,  //set to '.' for current directory
-    string& ListStdOut, //Return List of StdOut
-    string& ListStdErr, //Return List of StdErr
-    uint32_t& RetCode)    //Return Exit Code
-{
-    int                  Success;
-    SECURITY_ATTRIBUTES  security_attributes;
-    HANDLE               stdout_rd = INVALID_HANDLE_VALUE;
-    HANDLE               stdout_wr = INVALID_HANDLE_VALUE;
-    HANDLE               stderr_rd = INVALID_HANDLE_VALUE;
-    HANDLE               stderr_wr = INVALID_HANDLE_VALUE;
-    PROCESS_INFORMATION  process_info;
-    STARTUPINFOA          startup_info;
-    thread               stdout_thread;
-    thread               stderr_thread;
-
-    security_attributes.nLength = sizeof(SECURITY_ATTRIBUTES);
-    security_attributes.bInheritHandle = TRUE;
-    security_attributes.lpSecurityDescriptor = nullptr;
-
-    if (!CreatePipe(&stdout_rd, &stdout_wr, &security_attributes, 0) ||
-        !SetHandleInformation(stdout_rd, HANDLE_FLAG_INHERIT, 0)) {
-        return -1;
+std::string exec(const char* cmd) {
+    //cout << "Executing: " << cmd << endl << endl;
+    char buffer[128];
+    std::string result = "";
+    FILE* pipe = _popen(cmd, "r");
+    if (!pipe) throw std::runtime_error("popen() failed!");
+    try {
+        while (fgets(buffer, sizeof buffer, pipe) != NULL) {
+            result += buffer;
+        }
     }
-
-    if (!CreatePipe(&stderr_rd, &stderr_wr, &security_attributes, 0) ||
-        !SetHandleInformation(stderr_rd, HANDLE_FLAG_INHERIT, 0)) {
-        if (stdout_rd != INVALID_HANDLE_VALUE) CloseHandle(stdout_rd);
-        if (stdout_wr != INVALID_HANDLE_VALUE) CloseHandle(stdout_wr);
-        return -2;
+    catch (...) {
+        _pclose(pipe);
+        throw;
     }
-
-    ZeroMemory(&process_info, sizeof(PROCESS_INFORMATION));
-    ZeroMemory(&startup_info, sizeof(STARTUPINFO));
-
-    startup_info.cb = sizeof(STARTUPINFO);
-    startup_info.hStdInput = 0;
-    startup_info.hStdOutput = stdout_wr;
-    startup_info.hStdError = stderr_wr;
-
-    if (stdout_rd || stderr_rd)
-        startup_info.dwFlags |= STARTF_USESTDHANDLES;
-
-    // Make a copy because CreateProcess needs to modify string buffer
-    char      CmdLineStr[MAX_PATH];
-    strncpy(CmdLineStr, CmdLine.c_str(), MAX_PATH);
-    CmdLineStr[MAX_PATH - 1] = 0;
-
-    Success = CreateProcessA(
-        nullptr,
-        CmdLineStr,
-        nullptr,
-        nullptr,
-        TRUE,
-        0,
-        nullptr,
-        CmdRunDir,
-        &startup_info,
-        &process_info
-    );
-    CloseHandle(stdout_wr);
-    CloseHandle(stderr_wr);
-
-    if (!Success) {
-        CloseHandle(process_info.hProcess);
-        CloseHandle(process_info.hThread);
-        CloseHandle(stdout_rd);
-        CloseHandle(stderr_rd);
-        return -4;
-    }
-    else {
-        CloseHandle(process_info.hThread);
-    }
-
-    if (stdout_rd) {
-        stdout_thread = thread([&]() {
-            DWORD  n;
-            const size_t bufsize = 1000;
-            char         buffer[bufsize];
-            for (;;) {
-                n = 0;
-                int Success = ReadFile(
-                    stdout_rd,
-                    buffer,
-                    (DWORD)bufsize,
-                    &n,
-                    nullptr
-                );
-                //printf("STDERR: Success:%d n:%d\n", Success, (int)n);
-                if (!Success || n == 0)
-                    break;
-                string s(buffer, n);
-                //cout << s << endl;
-                ListStdOut += s;
-            }
-            //printf("STDOUT:BREAK!\n");
-            });
-    }
-
-    if (stderr_rd) {
-        stderr_thread = thread([&]() {
-            DWORD        n;
-            const size_t bufsize = 1000;
-            char         buffer[bufsize];
-            for (;;) {
-                n = 0;
-                int Success = ReadFile(
-                    stderr_rd,
-                    buffer,
-                    (DWORD)bufsize,
-                    &n,
-                    nullptr
-                );
-                //printf("STDERR: Success:%d n:%d\n", Success, (int)n);
-                if (!Success || n == 0)
-                    break;
-                string s(buffer, n);
-                //printf("STDERR:(%s)\n", s.c_str());
-                ListStdOut += s;
-            }
-            //printf("STDERR:BREAK!\n");
-            });
-    }
-
-    WaitForSingleObject(process_info.hProcess, INFINITE);
-    if (!GetExitCodeProcess(process_info.hProcess, (DWORD*)&RetCode))
-        RetCode = -1;
-
-    CloseHandle(process_info.hProcess);
-
-    if (stdout_thread.joinable())
-        stdout_thread.join();
-
-    if (stderr_thread.joinable())
-        stderr_thread.join();
-
-    CloseHandle(stdout_rd);
-    CloseHandle(stderr_rd);
-
-    return 0;
-}
-
-// https://stackoverflow.com/a/478960/5165437
-string exec(const char* cmd) {
-    int            rc;
-    uint32_t       RetCode;
-    string         ListStdOut;
-    string         ListStdErr;
-
-    rc = SystemCapture(
-        cmd,                //Command Line
-        ".",                  //CmdRunDir
-        ListStdOut,         //Return List of StdOut
-        ListStdErr,         //Return List of StdErr
-        RetCode             //Return Exit Code
-    );
-    if (rc < 0) {
-        cout << "ERROR: SystemCapture\n";
-        cout << "STDERR:\n";
-        cout << ListStdErr;
-        return ListStdErr;
-    }
-
-    cout << ListStdOut << endl;
-
-    return ListStdOut;
+    _pclose(pipe);
+    cout << result << endl;
+    return result;
 }
 string exec(const string cmd) {
     return exec(cmd.c_str());

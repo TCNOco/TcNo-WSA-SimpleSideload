@@ -55,6 +55,7 @@ bool unlink_associations();
 bool RegDelnodeRecurse(HKEY hKeyRoot, LPTSTR lpSubKey);
 bool RegDelnode(HKEY hKeyRoot, LPCTSTR lpSubKey);
 
+string adb_location = "\%AppData\%\\platform-tools\\adb.exe ";
 
 std::filesystem::path getAppData()
 {
@@ -128,25 +129,24 @@ int main(int argc, char** argv)
         return 1;
     }
 
-
     if (lowerCommand == "settings") // Open settings window:
-        command = "adb shell monkey -p com.android.settings -c android.intent.category.LAUNCHER 1";
+        command = "shell monkey -p com.android.settings -c android.intent.category.LAUNCHER 1";
     else if (lowerCommand == "push" && argc >= 3) {// Push file to downloads folder:
         string androidPath = "./storage/emulated/0/Download";
         if (argc >= 4) androidPath = argv[3];
 
-        command = "adb push \"" + std::string(argv[3]) + "\" " + androidPath;
+        command = "push \"" + std::string(argv[3]) + "\" " + androidPath;
     }
     else { // Install application:
         cout << "Installing: " << argv[1] << endl;
-        command = "adb install \"" + std::string(argv[1]) + "\"";
+        command = "install \"" + std::string(argv[1]) + "\"";
     }
 
 
-    auto result = exec(command);
+    auto result = exec(adb_location + command);
     if (result.find("no devices/emulators found") != std::string::npos)
     {
-        connect_and_retry(command);
+        connect_and_retry(adb_location + command);
     };
 
     cout << "Closing in 3 seconds..." << endl;
@@ -161,7 +161,7 @@ void connect_to_devices()
     cout << endl;
 
     cout << "Connecting to ADB device: adb connect " << ip << endl;
-    string connect = "adb connect " + ip;
+    string connect = adb_location + "connect " + ip;
 	exec(connect);
 }
 
@@ -169,7 +169,11 @@ void connect_and_retry(string command)
 {
     connect_to_devices();
     cout << "Retrying: " << command << endl;
-    exec(command);
+    if (exec(command).find("no devices/emulators found") != std::string::npos)
+    {
+        system("pause");
+        exit(0);
+    };
 }
 
 void restart_as_admin_from_install(string arg)
