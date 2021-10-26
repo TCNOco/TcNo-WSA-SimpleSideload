@@ -23,7 +23,7 @@
 Either double-click an apk (with it set to the default action - in the install), or Right-Click an apk and select `Install in WSA-SimpleSideload`.
 
 # Other commands:
--  If you uninstall, or want to update, run "SimpleSideload.exe reinstall"
+-  If you uninstall, or want to update, run "SimpleSideload.exe unlink". Either with the EXE in `%AppData%\platform-tools\`, or a downladed copy.
 -  Run "SimpleSideload.exe reinstall" to remove file associations & the Context Menu option.
 -  "SimpleSideload.exe settings" - Opens WSA's settings window
 -  "SimpleSideload.exe push <File>" - Move a file to the WSA's Downloads folder. Add <Optional:Destination on Android> to push to another folder. Downloads (default) is: -  `./storage/emulated/0/Download`
