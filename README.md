@@ -30,7 +30,7 @@ Either double-click an apk (with it set to the default action - in the install),
 -  "SimpleSideload.exe install <apkname/fullpath>" - Install an APK manually from the command line
 
 ## To update:
-  Run "SimpleSideload.exe reinstall" in the directory you downloaded the program to.
+  Run "SimpleSideload.exe reinstall" in the directory you downloaded the updated program to.
   
 # It runs adb commands for you
 On install, if there isn't a platform-tools folder in the same directory, it automagically downloads the latest version, and extracts to `%AppData%\platform-tools`. It also copies itself there.
