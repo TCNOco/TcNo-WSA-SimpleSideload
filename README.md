@@ -23,14 +23,14 @@
 Either double-click an apk (with it set to the default action - in the install), or Right-Click an apk and select `Install in WSA-SimpleSideload`.
 
 # Other commands:
--  If you uninstall, or want to update, run "SimpleSideload.exe unlink". Either with the EXE in `%AppData%\platform-tools\`, or a downladed copy.
--  Run "SimpleSideload.exe reinstall" to have the opportunity to add file associations & the Context Menu option.
--  "SimpleSideload.exe settings" - Opens WSA's settings window
--  "SimpleSideload.exe push <File>" - Move a file to the WSA's Downloads folder. Add <Optional:Destination on Android> to push to another folder. Downloads (default) is: -  `./storage/emulated/0/Download`
--  "SimpleSideload.exe install <apkname/fullpath>" - Install an APK manually from the command line
+-  `SimpleSideload.exe unlink` - Uninstall this program. Either with the EXE in `%AppData%\platform-tools\`, or a downladed copy.
+-  `SimpleSideload.exe reinstall` - Gives another opportunity to add file associations & the Context Menu option.
+-  `SimpleSideload.exe settings` - Opens WSA's settings window
+-  `SimpleSideload.exe push <File>` - Move a file to the WSA's Downloads folder. Add <Optional:Destination on Android> to push to another folder. Downloads (default) is: -  `./storage/emulated/0/Download`
+-  `SimpleSideload.exe <apkname/fullpath>` - Install an APK manually from the command line
 
 ## To update:
-  Run "SimpleSideload.exe reinstall" in the directory you downloaded the updated program to.
+  Run `SimpleSideload.exe reinstall` in the directory you downloaded the updated program to.
   
 # It runs adb commands for you
 On install, if there isn't a platform-tools folder in the same directory, it automagically downloads the latest version, and extracts to `%AppData%\platform-tools`. It also copies itself there.
