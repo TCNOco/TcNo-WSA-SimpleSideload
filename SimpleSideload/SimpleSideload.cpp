@@ -40,7 +40,9 @@
 
 #include "TcNo.hpp"
 #include "unzip.h"
+
 using namespace std;
+
 #ifndef _unzip_H
 DECLARE_HANDLE(HZIP);
 #endif
@@ -76,19 +78,20 @@ int main(int argc, char** argv)
 {
     SetConsoleTitle(_T("TcNo WSA Simple Sideload"));
     string command, lowerCommand;
+
     path = getOperatingPath();
     appdata = getAppData();
     if (argc > 1)
     {
+		lowerCommand = argv[1];
         std::for_each(lowerCommand.begin(), lowerCommand.end(), [](char& c) {
             c = ::tolower(c);
             });
-        lowerCommand = argv[1];
         if (lowerCommand == "finish") {
             finish_install(argc, argv);
             return 0;
         }
-        if (lowerCommand == "unlink")
+        if (lowerCommand == "unlink" || lowerCommand == "uninstall")
         {
             unlink_associations();
             return 0;
@@ -138,10 +141,11 @@ int main(int argc, char** argv)
         command = "push \"" + std::string(argv[3]) + "\" " + androidPath;
     }
     else { // Install application:
-        cout << "Installing: " << argv[1] << endl;
+		std::string app_name(argv[1]);
+		if (app_name.find("\\") != std::string::npos) app_name = app_name.substr(app_name.find_last_of('\\'), app_name.size() - app_name.find_last_of('\\') - 1);
+        cout << "Installing: " << app_name << endl;
         command = "install \"" + std::string(argv[1]) + "\"";
     }
-
 
     auto result = exec(adb_location + command);
     if (result.find("no devices/emulators found") != std::string::npos)
